@@ -1,70 +1,110 @@
-# Getting Started with Create React App
+# 📄 DocuSign Integration Architecture with PKCE & Proxy API Gateway
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project demonstrates a secure and modular integration between a frontend client and DocuSign using the PKCE (Proof Key for Code Exchange) flow for authentication, and a Node.js proxy server to handle all other DocuSign API operations.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## ⚙️ Architecture Overview
 
-### `npm start`
+```
++---------------------+      PKCE Auth      +--------------------+
+|                     | <-----------------> |                    |
+|   Frontend Client   |                    |   DocuSign Auth     |
+|   (React/HTML/CSS)  |                    |      Server         |
+|                     |                    +--------------------+
+|                     |
+|                     |       API Calls     +--------------------+
+|                     | <-----------------> |  Node.js Proxy API |
++---------------------+                    |     Gateway         |
+                                          +--------------------+
+                                                    |
+                                                    | DocuSign REST API Calls
+                                                    v
+                                          +-----------------------------+
+                                          |        DocuSign API         |
+                                          +-----------------------------+
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🔐 Authentication: PKCE Flow
 
-### `npm test`
+* The frontend directly handles **OAuth 2.0 with PKCE** against DocuSign for secure authentication.
+* No sensitive credentials are exposed to the client.
+* Tokens obtained are stored in memory/session for making authorized API calls via proxy.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🔀 Proxy Server (Node.js)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+To avoid exposing DocuSign API credentials or secrets, all DocuSign **resource APIs** (after auth) are routed through a proxy Node.js server. This allows:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+* Hiding API keys or client secrets
+* Custom validation and logging
+* Rate limiting or analytics
+* Avoiding CORS issues on frontend
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## 🔌 DocuSign Endpoints Used
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+| Functionality          | Method | Endpoint                                                                                              |
+| ---------------------- | ------ | ----------------------------------------------------------------------------------------------------- |
+| 📄 **List Templates**  | `GET`  | `https://demo.docusign.net/restapi/v2.1/accounts/<accountId>/templates`                               |
+| 🧾 **Tab Details**     | `GET`  | `https://demo.docusign.net/restapi/v2.1/accounts/<accountId>/templates/<templateId>/documents/1/tabs` |
+| ✉️ **Envelope Create** | `POST` | `https://demo.docusign.net/restapi/v2.1/accounts/<accountId>/envelopes`                               |
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+> These API calls are **proxied** through the Node.js server to keep security intact and maintain separation of concerns.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 📦 Folder Structure
 
-## Learn More
+```
+.
+├── client/                   # Frontend App (React or HTML)
+│   └── handles PKCE Flow
+├── server/                   # Node.js Proxy API
+│   └── Routes for DocuSign APIs
+├── README.md
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🚀 How It Works
 
-### Code Splitting
+1. **User opens frontend app** and logs in via DocuSign using PKCE.
+2. **Access token is stored** in frontend after successful auth.
+3. Frontend **calls proxy API** (Node.js) for:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+   * Listing templates
+   * Fetching tab definitions from template
+   * Creating envelopes with dynamic tab data
+4. Node.js server **authenticates request**, appends authorization headers, and calls DocuSign endpoints.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## ✅ Security Advantages
 
-### Making a Progressive Web App
+* PKCE protects against token interception attacks.
+* Proxy ensures API credentials and logic are never exposed to the browser.
+* CORS, rate limiting, and auditing can be handled on the backend.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## 📄 Sample Proxy Route (Node.js)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```js
+app.get('/api/templates', async (req, res) => {
+  const { accountId } = req.query;
+  const token = req.headers.authorization;
 
-### Deployment
+  const response = await axios.get(
+    `https://demo.docusign.net/restapi/v2.1/accounts/${accountId}/templates`,
+    { headers: { Authorization: token } }
+  );
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+  res.json(response.data);
+});
+```
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
