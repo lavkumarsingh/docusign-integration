@@ -58,19 +58,6 @@ To avoid exposing DocuSign API credentials or secrets, all DocuSign **resource A
 
 ---
 
-## 📦 Folder Structure
-
-```
-.
-├── client/                   # Frontend App (React or HTML)
-│   └── handles PKCE Flow
-├── server/                   # Node.js Proxy API
-│   └── Routes for DocuSign APIs
-├── README.md
-```
-
----
-
 ## 🚀 How It Works
 
 1. **User opens frontend app** and logs in via DocuSign using PKCE.
