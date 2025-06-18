@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Input, Layout, Typography, Space, Card } from 'antd';
+import { Button, Form, Input, Layout, Typography, Space, Card, message } from 'antd';
 import useDocuSignAuth from './hooks/useDocuSignAuth';
 import SigningPage from './components/SigningPage';
-
-// Landing page simple
-// Snakbar on sending the document
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
 
 function App() {
   const { accessToken, login, logout } = useDocuSignAuth();
+    const [messageApi, contextHolder] = message.useMessage();
 
   return (
     // <Layout style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #f0f4ff, #e6f7ff)' }}>
@@ -36,6 +34,7 @@ function App() {
     //   </Content>
     // </Layout>
     <Layout style={{height: "100vh"}}>
+      {contextHolder}
       {/* Header */}
       <header
         style={{

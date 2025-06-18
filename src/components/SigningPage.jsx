@@ -23,6 +23,7 @@ import dayjs from 'dayjs';
 
 function SigningPage() {
   const [form] = Form.useForm();
+    const [messageApi, contextHolder] = message.useMessage();
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [templateDetails, setTemplateDetails] = useState([]);
@@ -57,11 +58,11 @@ function SigningPage() {
         fieldValues: formatted,
       });
 
-      message.success('Envelope sent for signature successfully!');
+      messageApi.success('Envelope sent for signature successfully!');
       form.resetFields();
     } catch (error) {
       console.error('Error sending envelope:', error);
-      message.error(error?.message || 'Failed to send the document for signature.');
+      messageApi.error(error?.message || 'Failed to send the document for signature.');
     } finally {
       setSending(false);
     }
@@ -86,11 +87,9 @@ function SigningPage() {
     try {
       const details = await templateDetail(selectedTemplate);
       setTemplateDetails(details || []);
-      
-        console.log("Dynamic Field", details);
     } catch (error) {
       console.error('Error fetching template details:', error);
-      message.error('Failed to load template details.');
+      messageApi.error('Failed to load template details.');
     } finally {
       setLoadingFields(false);
     }
@@ -111,89 +110,92 @@ function SigningPage() {
     }, [templateDetails]);
 
   return (
-    <Card
-      title="Send Document for Signature"
-      bordered={false}
-      style={{ width: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-    >
-      <Typography style={{ fontWeight: 600, marginBottom: 10 }}>
-        Select Template
-      </Typography>
-
-      <Select
-        style={{ width: '100%', borderRadius: 4 }}
-        placeholder="Select a template"
-        onChange={(templateId) => setSelectedTemplate(templateId)}
-        loading={loadingTemplates}
+    <>
+      {contextHolder}
+      <Card
+        title="Send Document for Signature"
+        bordered={false}
+        style={{ width: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
       >
-        {templates.map((template) => (
-          <Select.Option key={template.templateId} value={template.templateId}>
-            {template.name}
-          </Select.Option>
-        ))}
-      </Select>
+        <Typography style={{ fontWeight: 600, marginBottom: 10 }}>
+          Select Template
+        </Typography>
 
-      <Spin spinning={loadingFields}>
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          requiredMark={false}
-          style={{ marginTop: 20 }}
+        <Select
+          style={{ width: '100%', borderRadius: 4 }}
+          placeholder="Select a template"
+          onChange={(templateId) => setSelectedTemplate(templateId)}
+          loading={loadingTemplates}
         >
-            <Row gutter={16}>
-                <Col span={12}>
-                    <Form.Item
-                        label="Signer Name"
-                        name="signerName"
-                        rules={[{ required: true, message: 'Please input Signer Name' }]}
-                    >
-                        <Input placeholder="Signer Name" />
-                    </Form.Item>
-                </Col>
+          {templates.map((template) => (
+            <Select.Option key={template.templateId} value={template.templateId}>
+              {template.name}
+            </Select.Option>
+          ))}
+        </Select>
 
-                <Col span={12}>
-                    <Form.Item
-                        label="Signer Email"
-                        name="signerEmail"
-                        rules={[
-                        { required: true, message: 'Please input Signer Email' },
-                        { type: 'email', message: 'Please enter a valid email' },
-                        ]}
-                    >
-                        <Input placeholder="Signer Email" />
-                    </Form.Item>
-                </Col>
+        <Spin spinning={loadingFields}>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            requiredMark={false}
+            style={{ marginTop: 20 }}
+          >
+              <Row gutter={16}>
+                  <Col span={12}>
+                      <Form.Item
+                          label="Signer Name"
+                          name="signerName"
+                          rules={[{ required: true, message: 'Please input Signer Name' }]}
+                      >
+                          <Input placeholder="Signer Name" />
+                      </Form.Item>
+                  </Col>
 
-                {templateDetails.map((field) => (
-                    <Col span={12}>
-                        <Form.Item
-                        key={field.value}
-                        label={field.value}
-                        name={field.value}
-                        rules={[{ required: true, message: `Please input ${field.label}` }]}
-                        >
-                        {field.tabType === 'date' ? (
-                            <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
-                        ) : (
-                            <Input placeholder={field.value} />
-                        )}
-                        </Form.Item>
-                    </Col>
-                ))}
-            </Row>
-            {
-                selectedTemplate && <Row>
-                <Form.Item style={{width: "100%"}}>
-                    <Button type="primary" style={{width: "100%", borderRadius: 4, backgroundColor: "black"}} htmlType="submit" block loading={sending}>
-                    🚀 Send for Signature
-                    </Button>
-                </Form.Item>
-            </Row>
-            }
-        </Form>
-      </Spin>
-    </Card>
+                  <Col span={12}>
+                      <Form.Item
+                          label="Signer Email"
+                          name="signerEmail"
+                          rules={[
+                          { required: true, message: 'Please input Signer Email' },
+                          { type: 'email', message: 'Please enter a valid email' },
+                          ]}
+                      >
+                          <Input placeholder="Signer Email" />
+                      </Form.Item>
+                  </Col>
+
+                  {templateDetails.map((field) => (
+                      <Col span={12}>
+                          <Form.Item
+                          key={field.value}
+                          label={field.value}
+                          name={field.value}
+                          rules={[{ required: true, message: `Please input ${field.label}` }]}
+                          >
+                          {field.tabType === 'date' ? (
+                              <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
+                          ) : (
+                              <Input placeholder={field.value} />
+                          )}
+                          </Form.Item>
+                      </Col>
+                  ))}
+              </Row>
+              {
+                  selectedTemplate && <Row>
+                  <Form.Item style={{width: "100%"}}>
+                      <Button type="primary" style={{width: "100%", borderRadius: 4, backgroundColor: "black"}} htmlType="submit" block loading={sending}>
+                      🚀 Send for Signature
+                      </Button>
+                  </Form.Item>
+              </Row>
+              }
+          </Form>
+        </Spin>
+      </Card>
+    </>
   );
 }
 
