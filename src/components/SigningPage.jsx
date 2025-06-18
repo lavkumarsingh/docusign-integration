@@ -15,6 +15,7 @@ import {
 import {
   sendEnvelopeWithTemplate,
   listTemplates,
+  tabDetails,
   templateDetail,
 } from '../utils/docusignClient';
 import { extractDocGenFormFields } from '../utils/parse';
@@ -85,6 +86,8 @@ function SigningPage() {
     try {
       const details = await templateDetail(selectedTemplate);
       setTemplateDetails(details || []);
+      
+        console.log("Dynamic Field", details);
     } catch (error) {
       console.error('Error fetching template details:', error);
       message.error('Failed to load template details.');
@@ -92,23 +95,6 @@ function SigningPage() {
       setLoadingFields(false);
     }
   };
-
-//   useEffect(() => {
-//     getTemplateList();
-//   }, []);
-
-//   useEffect(() => {
-//     getDynamicFields();
-//   }, [selectedTemplate]);
-
-//   useEffect(() => {
-//     if (templateDetails.length > 0) {
-//       const fields = extractDocGenFormFields(templateDetails);
-//       setDynamicFields(fields);
-//     } else {
-//       setDynamicFields([]);
-//     }
-//   }, [templateDetails]);
 
     useEffect(() => {
         getTemplateList();
@@ -122,7 +108,6 @@ function SigningPage() {
     useEffect(() => {
         const data = extractDocGenFormFields(templateDetails)
         setDynamicFields(data);
-        console.log(data);
     }, [templateDetails]);
 
   return (
@@ -180,15 +165,15 @@ function SigningPage() {
                     </Form.Item>
                 </Col>
 
-                {dynamicFields.map((field) => (
+                {templateDetails.map((field) => (
                     <Col span={12}>
                         <Form.Item
-                        key={field.label}
-                        label={field.label}
-                        name={field.label}
+                        key={field.value}
+                        label={field.value}
+                        name={field.value}
                         rules={[{ required: true, message: `Please input ${field.label}` }]}
                         >
-                        {field.type === 'Date' ? (
+                        {field.tabType === 'date' ? (
                             <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
                         ) : (
                             <Input placeholder={field.label} />

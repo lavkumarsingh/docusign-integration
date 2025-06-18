@@ -98,14 +98,25 @@ export async function templateDetail(templateId) {
     const baseURI = userInfo.accounts[0].base_uri;
     const proxyURI = 'http://localhost:8080'
 
-    const templates = await axios.get(`${proxyURI}/api/templates/${templateId}?account_id=${accountId}&baseURI=${baseURI}`, {
+    const apiResponse = await axios.get(`${proxyURI}/api/templates/${templateId}?account_id=${accountId}&baseURI=${baseURI}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
       }
     });
 
-    return templates.data;
+    // Only include value and tabType for specific tab groups
+    const extractTabs = (tabs = []) => tabs.map(({ value, tabType }) => ({ value, tabType }));
+
+    // Merge selected tab types
+    const result = [
+      ...extractTabs(apiResponse.data.textTabs),
+      ...extractTabs(apiResponse.data.dateTabs)
+    ];
+
+    console.log(apiResponse.data, result);
+
+    return result;
     
   } catch (err) {
     console.log(err);
