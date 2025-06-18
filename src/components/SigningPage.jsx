@@ -176,7 +176,7 @@ function SigningPage() {
                         {field.tabType === 'date' ? (
                             <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
                         ) : (
-                            <Input placeholder={field.label} />
+                            <Input placeholder={field.value} />
                         )}
                         </Form.Item>
                     </Col>
