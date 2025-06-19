@@ -16,7 +16,7 @@ This project demonstrates a secure and modular integration between a frontend cl
 |                     |       API Calls     +--------------------+
 |                     | <-----------------> |  Node.js Proxy API |
 +---------------------+                    |     Gateway         |
-                                          +--------------------+
+                                           +--------------------+
                                                     |
                                                     | DocuSign REST API Calls
                                                     v
@@ -94,4 +94,3 @@ app.get('/api/templates', async (req, res) => {
   res.json(response.data);
 });
 ```
-

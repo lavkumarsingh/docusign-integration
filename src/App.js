@@ -10,29 +10,9 @@ function App() {
   const { accessToken, login, logout } = useDocuSignAuth();
     const [messageApi, contextHolder] = message.useMessage();
 
-  return (
-    // <Layout style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #f0f4ff, #e6f7ff)' }}>
-    //   <Header style={{ background: '#001529', padding: '0 24px' }}>
-    //     <Title level={3} style={{ color: 'white', lineHeight: '64px', margin: 0 }}>
-    //       DocuSign Integration
-    //     </Title>
-    //   </Header>
 
-    //   <Content style={{display: "flex", justifyContent: "center", alignItems: "center" }}>
-    //     {!accessToken ? (
-    //       <Card style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%", width: "400px"}}>
-    //         <div style={{display: "flex", justifyContent: "center", alignItems: "center" }}>
-    //           <img src="https://play-lh.googleusercontent.com/1fqmsQDxaBDhvgVq2ceqB4ij46YJ1P7pwIrAkIOBml9fbIMO8RZe1Q7bAwp4-VXetaw=w480-h960-rw" style={{width: "100px"}} alt="" />
-    //           <Button style={{borderRadius: 4}} type="primary" size="large" onClick={login}>
-    //             Login with DocuSign
-    //           </Button>
-    //         </div>
-    //       </Card>
-    //     ) : (
-    //       <SigningPage />
-    //     )}
-    //   </Content>
-    // </Layout>
+  console.log("accessToken", accessToken);
+  return (
     <Layout style={{height: "100vh"}}>
       {contextHolder}
       {/* Header */}
